@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Lesion Prediction</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #webcam-container {
+            margin-bottom: 20px;
+        }
+
+        #canvas-container {
+            position: relative;
+            text-align: center;
+        }
+
+        canvas {
+            display: inline-block;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-group {
+            margin-top: 10px;
+        }
+
+        #prediction {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Skin Lesion Prediction</h1>
+        <div id="webcam-container">
+            <button type="button" class="btn btn-primary" onclick="toggleCamera()">Toggle Camera</button>
+            <video id="webcam" playsinline autoplay style="display:none;"></video>
+            <button type="button" class="btn btn-primary" id="captureButton" style="display:none;" onclick="captureImage()">Capture Image</button>
+            <button type="button" class="btn btn-secondary" id="clearButton" onclick="clearCanvas()">Clear</button>
+        </div>
+        <div id="canvas-container">
+            <canvas id="canvas" width="640" height="480"></canvas>
+        </div>
+        <div class="btn-group" role="group" aria-label="Prediction options">
+            <label for="imageInput" class="btn btn-primary">
+                Upload Image
+                <input type="file" id="imageInput" name="image" style="display:none;" onchange="predictFromUpload()">
+            </label>
+        </div>
+        <p id="prediction">Prediction: </p>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
+        integrity="sha384-i2pOg6uJwQGj1J2EUEfxOqnhjSmEqlt4Kzo3F9NtKUnM8s8dP1MAeMbBFC/BaRuI"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const predictionElement = document.getElementById('prediction');
+        const captureButton = document.getElementById('captureButton');
+        const clearButton = document.getElementById('clearButton');
+
+        canvas.width = 640;
+        canvas.height = 480;
+
+        let webcamInterval;
+
+        async function setupWebcam() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+                if (videoDevices.length === 0) {
+                    console.error('No video devices found.');
+                    return;
+                }
+
+                const constraints = { video: { deviceId: videoDevices[0].deviceId } };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                video.srcObject = stream;
+            } catch (error) {
+                console.error('Error setting up webcam:', error);
+            }
+        }
+
+        function toggleCamera() {
+            clearInterval(webcamInterval);
+
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                captureButton.style.display = 'none';
+                clearButton.style.display = 'none';
+            } else {
+                setupWebcam();
+                captureButton.style.display = 'none';
+                clearButton.style.display = 'none';
+
+                // Add a timeout to ensure the webcam is set up before starting the interval
+                setTimeout(() => {
+                    webcamInterval = setInterval(() => {
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    }, 1000 / 30);
+                    captureButton.style.display = 'inline-block';
+                }, 500);
+            }
+        }
+
+        function captureImage() {
+            clearInterval(webcamInterval);
+
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            if (video.srcObject) {
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const data = { image_data: Array.from(imageData.data) };
+
+                console.log('Captured frame:', imageData);
+                console.log('Sending data to /predict_webcam:', data);
+
+                fetch('/predict_webcam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() if csrf_token() else "" }}',
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        console.log('Prediction result:', result);
+                        predictionElement.textContent = 'Prediction: ' + result.prediction;
+                    })
+                    .catch(error => console.error('Error predicting:', error));
+
+                captureButton.style.display = 'none';
+                clearButton.style.display = 'inline-block';
+            }
+        }
+
+        function clearCanvas() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            clearButton.style.display = 'none';
+            captureButton.style.display = 'inline-block';
+        }
+
+        function predictFromUpload() {
+            clearInterval(webcamInterval);
+
+            const fileInput = document.getElementById('imageInput');
+            const imageFile = fileInput.files[0];
+
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function () {
+                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                        const data = { image_data: Array.from(imageData.data) };
+
+                        console.log('Uploaded image:', imageData);
+                        console.log('Sending data to /predict_webcam:', data);
+
+                        fetch('/predict_webcam', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token() if csrf_token() else "" }}',
+                            },
+                            body: JSON.stringify(data),
+                        })
+                            .then(response => response.json())
+                            .then(result => {
+                                console.log('Prediction result:', result);
+                                predictionElement.textContent = 'Prediction: ' + result.prediction;
+                            })
+                            .catch(error => console.error('Error predicting from upload:', error));
+                    };
+                };
+                reader.readAsDataURL(imageFile);
+                clearButton.style.display = 'inline-block';
+            }
+        }
+
+        setupWebcam();
+    </script>
+</body>
+
+</html>
