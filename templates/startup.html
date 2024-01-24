@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Lesion Prediction</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+          integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyYL8BfO+x3GAeBFE7q1O3L5hEcXrgy92U" crossorigin="anonymous">
+    <!-- Stylish Portfolio CSS -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-stylish-portfolio/1.0.5/css/stylish-portfolio.min.css"
+          integrity="sha384-h5p6s6+3wtmU5FtFlUJ0RhoA2OSmNi/TZCF2iU5L/LDlSnT+Cc0SRPfs6Z1fF3LZ"
+          crossorigin="anonymous">
+    <style>
+        /* Your additional styles here... */
+
+        /* Adjustments to fit the Stylish Portfolio theme */
+        body {
+            background-color: #2C3E50;
+        }
+
+        .masthead {
+            height: 100vh;
+            min-height: 500px;
+            background: #f39c12;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            text-align: center;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .masthead h1 {
+            font-size: 3rem;
+            margin-bottom: 0;
+        }
+
+        .masthead p {
+            font-size: 1.5rem;
+        }
+
+        .non-clickable-label {
+            font-size: 1.5rem;
+            padding: 5px 10px;
+            background-color: #2C3E50;
+            color: white;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .info-button {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .info-button:hover {
+            background-color: #2a72c5;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container d-flex justify-content-center">
+        <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+            <a class="btn btn-success btn-lg" href="/predict_webcam">Custom Multi-Class Predictions</a>
+            <a class="btn btn-success btn-lg" href="/predict_binary">Custom Binary Predictions</a>
+            <a class="btn btn-success btn-lg" href="">VGG16 NN</a>
+            <a class="btn btn-success btn-lg" href="">ResNet50 NN</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Masthead -->
+<header class="masthead text-white text-center">
+    <div class="container">
+        <h1 class="text-uppercase mb-0">Welcome to Skin Lesion Prediction</h1>
+        <p class="font-weight-bold font-italic mb-2">Your solution for skin lesion detection</p>
+        <a class="btn btn-primary btn-lg" href="/predict_webcam">Get Started</a>
+    </div>
+</header>
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
+        integrity="sha384-i2pOg6uJwQGj1J2EUEfxOqnhjSmEqlt4Kzo3F9NtKUnM8s8dP1MAeMbBFC/BaRuI"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<!-- Font Awesome Icons -->
+<script src="https://kit.fontawesome.com/8f4ad5efda.js" crossorigin="anonymous"></script>
+
+
+<script>
+
+    // Enable Bootstrap Tooltip
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+</body>
+
+</html>
